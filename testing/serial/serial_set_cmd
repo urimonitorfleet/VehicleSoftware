@@ -1,0 +1,1 @@
+stty -F /dev/ttyUSB0 -clocal -ignbrk -echoe -echok -echoctl -echoke
