@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+# Brian Kintz
+# 12.03.2012
+
+# system/gather.pl
+
+# data collection plugin - system information
+
+# collect system information and make it accessible to the main control program
+
+# currently collected:  cpu usage, memory usage, cpu temperature
+# interval:  5 seconds
+
+use Fcntl qw(:flock SEEK_END);
+
+require '/root/code/control_auto/config.pl';
+
+my (@cpu_usage, $mem_usage, $cpuTemp);
+
+while(1){
+   @cpu_usage = `sar -P ALL 1 1 | awk 'NR==5,NR==6 {print 100-\$8}'`;
+
+   $mem_usage = `sar -r 1 1 | awk 'NR==4 {print \$4; exit}'`;
+
+   $cpuTemp = `sensors -A | grep temp1 | awk 'NR==2 {print \$2; exit}'`;
+   $cpuTemp =~ s/^.//;
+
+   chomp (@cpu_usage, $mem_usage, $cpuTemp);
+
+   open(FH, ">$SYS_DATA") or die "cannot open > $SYS_DATA";
+   flock(FH, LOCK_EX) or die "Cannot lock file $SYS_DATA - $!\n";
+
+   print FH 'Core0: ' . $cpu_usage[0] . '%, Core1: ' . $cpu_usage[1] . "%\n";
+   print FH "$mem_usage%\n";
+   print FH $cpuTemp . "C\n";
+
+   flock(FH, LOCK_UN) or die "Cannot unlock file $SYS_DATA - $!\n";
+
+   sleep(5);
+}
+
+close FH;
