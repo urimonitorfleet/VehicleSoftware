@@ -45,7 +45,6 @@ Readonly our %displayNames => (
    "com_hostname" => "Vehicle OS Hostname",
    "com_ipAddr_wlan" => "IP Address - Wireless",
    "com_ipAddr_eth" => "IP Address - Wired Ethernet",
-   "com_hasWAN" => "Has WAN Access",
    "gps_lat" => "Latitude",
    "gps_long" => "Longitude",
    "gps_satCount" => "Satellite Count",
@@ -55,24 +54,24 @@ Readonly our %displayNames => (
    "area" => "Target Area (pixels)",
    "os_usage_cpu" => "CPU Usage",
    "os_usage_mem" => "Memory Usage",
-   "os_temp_cpu" => "CPU Temperature (C)"
+   "os_temp_cpu" => "CPU Temperature"
 );
 
-Readonly our $openDataRoot => "<Data>";
+Readonly our $openDataRoot => "<Data>\n";
 Readonly our $closeDataRoot => "</Data>";
-Readonly our $openObj => "\n\t<DataItem>";
-Readonly our $closeObj => "</DataItem>";
-Readonly our $openMN => "\n\t\t<machineName>";
-Readonly our $closeMN => "</machineName>";
-Readonly our $openDN => "\n\t\t<displayName>";
-Readonly our $closeDN => "</displayName>";
-Readonly our $openVal => "\n\t\t<value>";
-Readonly our $closeVal => "</value>";
+Readonly our $openObj => "\t<DataItem>\n";
+Readonly our $closeObj => "\t</DataItem>\n";
+Readonly our $openMN => "\t\t<machineName>";
+Readonly our $closeMN => "</machineName>\n";
+Readonly our $openDN => "\t\t<displayName>";
+Readonly our $closeDN => "</displayName>\n";
+Readonly our $openVal => "\t\t<value>";
+Readonly our $closeVal => "</value>\n";
 
 # Data Directories
 Readonly our $WWW_DATA => "/tmp/www/data.xml";
-Readonly our $CAM_DATA => "/tmp/control/clVidFrame";
-
+Readonly our $CAM_DATA => "/tmp/data/video";
+Readonly our $SYS_DATA => "/tmp/data/system";
 
 
 
