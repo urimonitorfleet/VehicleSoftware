@@ -1,13 +1,24 @@
 #!/usr/bin/perl
 
+# Brian Kintz
+# 12.03.2012
+
+# main.pl
+
+# main autonomous control program
+
+# reads information from the generated files in /tmp/data and uses
+
+# it to make a movement decision, which it relays to the motor controller
+
+# loop interval: 1/10 second
+
 use Fcntl qw(:DEFAULT :flock);
 use Device::SerialPort;
-use Readonly;
 
-require "config.pl";
+require "/root/code/control_auto/config.pl";
 
-my %data = ();
-my ($key, $val, $temp);
+my ($temp);
 my ($lastDir, $mot_l, $mot_r);
 
 my @area_stack = (-1, -1, -1, -1, -1);
@@ -21,22 +32,9 @@ my $mot = Device::SerialPort->new("/dev/ttyUSB0") || die "Can't open /dev/ttyUSB
 while(1){
    $mot->write(sprintf("%c%c", 0, 0));
 
-   open(FH, "<", $CAM_DATA) or die "cannot open < $CAM_DATA";
+   my $data = getData();
 
-   unless (flock(FH, LOCK_SH | LOCK_NB)){
-      select(undef, undef, undef, 0.02);
-      flock(FH, LOCK_SH) or die "Couldn't lock file $CAM_DATA";
-   }
-
-   while(<FH>){
-      chomp;
-      ($key, $val) = split(/:/);
-      $data{ $key } = $val;
-   }
-
-   close FH;
-
-   $temp = $data{"cent_x"};
+   $temp = $data->{"cent_x"};
    
    if($temp eq "" || $temp == -1){  #not found
       $lastDir = $DIR_NONE;
@@ -76,7 +74,7 @@ while(1){
       $lastDir = $DIR_STOP;
    }
 
-   $temp = $data{"area"};
+   $temp = $data->{"area"};
    pop(@area_stack);
    unshift(@area_stack, $area);
    
@@ -93,12 +91,34 @@ while(1){
    }
 
    $mot->write(sprintf("%c%c", $mot_l, $mot_r));
-   
-   writeXML(%data);
+  
+   writeXML($data);
    select(undef, undef, undef, 0.05);
 }
 
 exit;
+
+sub getData {
+   my %data = ();
+   my ($key, $value);
+
+   my @files = glob("/tmp/data/*");
+
+   foreach (@files) {
+      open(FH, "<$_") or die "Cannot open file < $_ - $!";
+      flock(FH, LOCK_EX) or die "Cannot lock file $_ - $!\n";
+
+      while(<FH>){
+         chomp;
+         ($key, $val) = split(/\|/);
+         $data{ $key } = $val;
+      }
+
+      close FH;
+   }
+
+   return \%data;
+}
 
 sub avg {
    my ($in) = @_;
@@ -115,8 +135,9 @@ sub avg {
 }
 
 sub writeXML {
-   my (%data) = @_;
-
+   my $params = shift;
+   my %data = %$params;
+   
    my $out = $openDataRoot;
    my $temp;
 
@@ -124,7 +145,7 @@ sub writeXML {
       $out .= $openObj;
       $out .= $openMN . $key . $closeMN;
 
-      if (!($temp = $data { $key })) {
+      if (!($temp = $displayNames{ $key })) {
          $temp = "Undefined";
       }
 
