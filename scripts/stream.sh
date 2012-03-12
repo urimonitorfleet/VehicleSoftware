@@ -16,7 +16,7 @@ init_mjpg () {
 
 check_pid () {
    if [ -z "$1" ] || [ -z "$(pidof $1)" ]; then
-      echo "Failed!!"
+      echo "Failed!!\n"
       $0 stop
       exit 1
    else
@@ -52,7 +52,7 @@ MJPG_DIR=/usr/share/mjpg-streamer
 CONTROL_DIR=/root/code/control_auto
 
 case "$1" in
-   mjpg)       echo -n "--Starting streaming video capture (mjpg_streamer -> www)..."
+   mjpg)       echo -n "\tStarting streaming video capture (mjpg_streamer -> www)..."
                
                init_mjpg
                
@@ -65,12 +65,12 @@ case "$1" in
                exit 0
                ;;
 
-   mjpg_file)  echo -n "--Starting streaming video capture (mjpg_streamer -> www + file)..."
+   mjpg_file)  echo -n "\tStarting streaming video capture (mjpg_streamer -> www + file)..."
 
                init_mjpg
 
                $MJPG_DIR/mjpg_streamer -i input_uvc.so \
-               -o "output_file.so -d 70 -c $CONTROL_DIR/clVidFramePrep.sh" \
+               -o "output_file.so -d 70 -c $CONTROL_DIR/plugins/video/prep.sh" \
                -o "output_http.so -w $MJPG_DIR/www" \
                >/dev/null 2>&1&
 
@@ -80,7 +80,7 @@ case "$1" in
                exit 0
                ;;
 
-   vlc)        echo -n "--Starting video stream (VLC -> rtsp)..."
+   vlc)        echo -n "\tStarting video stream (VLC -> rtsp)..."
                su worker -c "cvlc -q --color v4l2:///dev/video0 :v4l2-width=640 :v4l2-height=360 --sout \
                              '#transcode{vcodec=mp4v,vb=1024}:rtp{sdp=rtsp://192.168.1.5:8080/test.sdp}' \
                              >/dev/null 2>&1&"
