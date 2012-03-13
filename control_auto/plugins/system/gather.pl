@@ -47,7 +47,7 @@ while(1){
    print FH "com_hostname|$hostname\n";
    print FH "com_ipAddr_eth|$ip_eth\n";
    print FH "com_ipAddr_wlan|$ip_wlan\n";
-   print FH 'os_usage_cpu|Core0:' . $cpu_usage[0] . '%, Core1: ' . $cpu_usage[1] . "%\n";
+   print FH 'os_usage_cpu|Core0:  ' . $cpu_usage[0] . '%,  Core1:  ' . $cpu_usage[1] . "%\n";
    print FH "os_usage_mem|$mem_usage%\n";
    print FH "os_temp_cpu|$cpuTemp" . "C\n";
 
