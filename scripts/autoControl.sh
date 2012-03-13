@@ -27,8 +27,8 @@ start) echo "Starting autonomous control..."
          echo "Not necessary."
        fi
      
-       echo "\tStarting data collection plugins:"
-       echo -n "\t\tSystem Information..."
+       echo "\tStarting data collection plugins..."
+       echo -n "\t--System Information..."
        $PLUGIN_DIR/system/gather.pl&
        if [ -z "$(ps -aef | grep system/gather.pl | grep -v grep)" ]; then
          echo "Failed!!\n"
@@ -39,7 +39,7 @@ start) echo "Starting autonomous control..."
        fi
 
        #start video streaming
-       $SCRIPT_DIR/stream.sh mjpg_file
+       $SCRIPT_DIR/stream.sh vlc_file
       
        echo -n "\tStarting control loop..."
        $CONTROL_DIR/main.pl&
@@ -58,14 +58,8 @@ start) echo "Starting autonomous control..."
        ;;
 
 stop)  echo "Stopping autonomous control..."
-       echo -n "\tStopping video stream..."
-       PID=$(pidof mjpg_streamer)
-       if [ -n "$PID" ]; then
-         kill -9 $PID
-         echo "Done."
-       else
-         echo "Not necessary."
-       fi
+       echo "\tStopping video stream..."
+       $SCRIPT_DIR/stream.sh stop
 
        echo -n "\tStopping data collection plugins..."
        PID=$(ps -aef | grep gather | grep -v grep | awk '{print $2}')
@@ -86,7 +80,7 @@ stop)  echo "Stopping autonomous control..."
        fi
 
        echo -n "\tCleaning up files..."
-#       rm -rf /tmp/data
+       rm -rf /tmp/data
        echo "Done."
 
        echo "Stopped."
