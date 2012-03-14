@@ -28,7 +28,7 @@ start) echo "Starting autonomous control..."
        fi
      
        echo "\tStarting data collection plugins..."
-       echo -n "\t--System Information..."
+       echo -n "\t --System Information..."
        $PLUGIN_DIR/system/gather.pl&
        if [ -z "$(ps -aef | grep system/gather.pl | grep -v grep)" ]; then
          echo "Failed!!\n"
