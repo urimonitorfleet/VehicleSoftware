@@ -45,10 +45,13 @@ Readonly our %displayNames => (
    "com_hostname" => "Vehicle OS Hostname",
    "com_ipAddr_wlan" => "IP Address - Wireless",
    "com_ipAddr_eth" => "IP Address - Wired Ethernet",
+   "gps_quality" => "GPS Fix Quality",
    "gps_lat" => "Latitude",
    "gps_long" => "Longitude",
-   "gps_satCount" => "Satellite Count",
-   "gps_accuracy" => "Estimated GPS Accuracy (meters)",
+   "gps_satInUse" => "Satellites In Use",
+   "gps_hdg_true" => "Heading (True)",
+   "gps_hdg_mag" => "Heading (Magnetic)",
+   "gps_sog_kts" => "Speed Over Ground (Kts)",
    "cent_y" => "Target Centroid - Y (pixels)",
    "cent_x" => "Target Centroid - X (pixels)",
    "area" => "Target Area (pixels)",
@@ -72,7 +75,7 @@ Readonly our $closeVal => "</value>\n";
 Readonly our $WWW_DATA => "/tmp/www/data.xml";
 Readonly our $CAM_DATA => "/tmp/data/video";
 Readonly our $SYS_DATA => "/tmp/data/system";
-
+Readonly our $GPS_DATA => "/tmp/data/gps";
 
 
 
