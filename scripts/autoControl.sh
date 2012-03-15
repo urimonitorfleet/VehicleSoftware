@@ -38,6 +38,16 @@ start) echo "Starting autonomous control..."
          echo "Done."
        fi
 
+       echo -n "\t --GPS..."
+       $PLUGIN_DIR/gps/gather.pl&
+       if [ -z "$(ps -aef | grep gps/gather.pl | grep -v grep)" ]; then
+         echo "Failed!!\n"
+         $0 stop
+         exit
+       else
+         echo "Done."
+       fi
+
        #start video streaming
        $SCRIPT_DIR/stream.sh vlc_file
       
