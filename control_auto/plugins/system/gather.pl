@@ -10,7 +10,7 @@
 # collect system information and make it accessible to the main control program
 
 # currently collected:  cpu usage, memory usage, cpu temperature
-# interval:  5 seconds
+# interval:  2 seconds
 
 use strict;
 use Fcntl qw(:flock SEEK_END);
@@ -54,6 +54,6 @@ while(1){
    # clean up
    close FH;
 
-   sleep(5);
+   sleep(2);
 }
 
