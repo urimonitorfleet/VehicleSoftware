@@ -23,7 +23,7 @@ my ($lastDir, $mot_l, $mot_r);
 
 my @area_stack = (-1, -1, -1, -1, -1);
 
-my $mot = Device::SerialPort->new("/dev/ttyUSB0") || die "Can't open /dev/ttyUSB0: $!\n";
+my $mot = Device::SerialPort->new("/dev/MotorController") || die "Can't open /dev/MotorController: $!\n";
    $mot->databits(8);
    $mot->baudrate(9600);
    $mot->parity("none");
@@ -135,13 +135,12 @@ sub avg {
 }
 
 sub writeXML {
-   my $params = shift;
-   my %data = %$params;
+   my $data = shift;
    
    my $out = $openDataRoot;
    my $temp;
 
-   while (my ($key, $value) = each(%data)) {
+   foreach $key (sort keys %$data) {
       $out .= $openObj;
       $out .= $openMN . $key . $closeMN;
 
@@ -150,7 +149,7 @@ sub writeXML {
       }
 
       $out .= $openDN . $temp . $closeDN;
-      $out .= $openVal . $value . $closeVal;
+      $out .= $openVal . $data->{ $key } . $closeVal;
 
       $out .= $closeObj;
    }
