@@ -18,8 +18,8 @@ use Fcntl qw(:flock SEEK_END);
 require '/root/code/control_auto/config.pl';
 
 my ($fixQual, $lat, $NS, $long, $EW, $satInUse);
-my ($hdg_mag, $hdg_true, $SOG_kts);
-my (@data, $count);
+my ($satInView, $hdg_mag, $hdg_true);
+my (@data, $data_i, $miss);
 
 our $GPS_DATA;
 
@@ -27,12 +27,11 @@ my @fixQualities = ( 'None', 'Standard GPS Fix', 'Differential GPS Fix' );
 
 open(GPS, "</dev/GPS");
 
-$count = 0;
+$miss = $data_i = 0;
 
 while(1){
    while(<GPS>){
       @data = split(',', $_);
-      
       chomp @data;
 
       switch ($data[0]) {
@@ -44,16 +43,24 @@ while(1){
             $EW = $data[5] || '-';
             $satInUse = $data[7] || '0';
          }
-
+            
+         case '$GPGSV' { $satInView = $data[3] || '0'; }
          case '$HCHDG' { $hdg_mag  = $data[1] || '-1'; }
          case '$HCHDT' { $hdg_true = $data[1] || '-1'; }
-         case '$GPVTG' { $SOG_kts  = $data[5] || '-1'; }
       }
 
-      if(++$count == 4){
+      if(++$data_i > 3){
          writeData();
-         $count = 0;
+         $data_i = 0;
       }
+   }
+
+   sleep(1);
+
+   if(++$miss > 4){
+      unlink $GPS_DATA;
+      $miss = 0;
+      sleep(4);
    }
 }
 
@@ -66,9 +73,9 @@ sub writeData {
    print FH "gps_lat|$lat\n";
    print FH "gps_long|$long\n";
    print FH "gps_satInUse|$satInUse\n";
+   print FH "gps_satInView|$satInView\n";
    print FH "gps_hdg_true|$hdg_true\n";
    print FH "gps_hdg_mag|$hdg_mag\n";
-   print FH "gps_sog_kts|$SOG_kts\n";
 
    close FH;
 }
