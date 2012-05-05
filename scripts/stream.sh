@@ -59,7 +59,7 @@ case "$1" in
                
                init_mjpg
                
-               $MJPG_DIR/mjpg_streamer -i "$MJPG_DIR/input_uvc.so -f 15 -d /dev/video0" \
+               $MJPG_DIR/mjpg_streamer -i "$MJPG_DIR/input_uvc.so -f 30 -r 640x360 -d /dev/video0" \
                                        -o "$MJPG_DIR/output_http.so -w /tmp/www" \
                                        >/dev/null 2>&1&
                sleep 1

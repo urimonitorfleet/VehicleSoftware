@@ -7,7 +7,7 @@
 
 if [ $# -lt 1 ]
 then
-   echo "Usage : $0 [start|stop]"
+   echo "Usage : $0 [start|stop|restart]"
    exit
 fi
 
@@ -39,17 +39,21 @@ start) echo "Starting autonomous control..."
        fi
 
        echo -n "\t --GPS..."
-       $PLUGIN_DIR/gps/gather.pl&
-       if [ -z "$(ps -aef | grep gps/gather.pl | grep -v grep)" ]; then
-         echo "Failed!!\n"
-         $0 stop
-         exit
+       if [ -e "/dev/GPS" ]; then
+         $PLUGIN_DIR/gps/gather.pl&
+         if [ -z "$(ps -aef | grep gps/gather.pl | grep -v grep)" ]; then
+            echo "Failed!!\n"
+            $0 stop
+            exit
+         else
+            echo "Done."
+         fi
        else
-         echo "Done."
+         echo "No GPS Connected!!"
        fi
 
        #start video streaming
-       $SCRIPT_DIR/stream.sh vlc_file
+       $SCRIPT_DIR/stream.sh mjpg_file
       
        echo -n "\tStarting control loop..."
        $CONTROL_DIR/main.pl&
@@ -91,10 +95,15 @@ stop)  echo "Stopping autonomous control..."
 
        echo -n "\tCleaning up files..."
        rm -rf /tmp/data
+       rm /tmp/www/data.xml
        echo "Done."
 
        echo "Stopped."
        ;;
+
+restart) $0 stop
+         $0 start
+         ;;
 
 *)     echo "Invalid option"
        ;;
