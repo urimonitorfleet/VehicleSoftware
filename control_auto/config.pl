@@ -8,6 +8,11 @@
 use strict;
 use Readonly;
 
+# Operating Mode Definitions
+Readonly our $OP_MODE_FLAGSHIP => 1;
+Readonly our $OP_MODE_DRONE_LEFT => 2;
+Readonly our $OP_MODE_DRONE_RIGHT => 4;
+
 # Motor Speed Definitions
 Readonly our $MOT_L_R_100 => 1;
 Readonly our $MOT_L_R_75 => 16;
@@ -35,9 +40,11 @@ Readonly our $MOT_50_PCT => 32;
 
 # Directional Bindings
 Readonly our $DIR_NONE => -1;
-Readonly our $DIR_STOP => 0;
-Readonly our $DIR_RIGHT => 1;
-Readonly our $DIR_LEFT => 2;
+Readonly our $DIR_STOP => 1;
+Readonly our $DIR_RIGHT => 2;
+Readonly our $DIR_LEFT => 4;
+Readonly our $DIR_FORWARD => 8;
+Readonly our $DIR_REVERSE => 16;
 
 Readonly our %displayNames => (
    "op_mode" => "Operating Mode",
@@ -49,9 +56,9 @@ Readonly our %displayNames => (
    "gps_lat" => "Latitude",
    "gps_long" => "Longitude",
    "gps_satInUse" => "Satellites In Use",
+   "gps_satInView" => "Satellites In View",
    "gps_hdg_true" => "Heading (True)",
    "gps_hdg_mag" => "Heading (Magnetic)",
-   "gps_sog_kts" => "Speed Over Ground (Kts)",
    "cent_y" => "Target Centroid - Y (pixels)",
    "cent_x" => "Target Centroid - X (pixels)",
    "area" => "Target Area (pixels)",
@@ -73,6 +80,7 @@ Readonly our $closeVal => "</value>\n";
 
 # Data Directories
 Readonly our $WWW_DATA => "/tmp/www/data.xml";
+Readonly our $WWW_DRONE_COMMANDS => "/tmp/www/commands";
 Readonly our $CAM_DATA => "/tmp/data/video";
 Readonly our $SYS_DATA => "/tmp/data/system";
 Readonly our $GPS_DATA => "/tmp/data/gps";
