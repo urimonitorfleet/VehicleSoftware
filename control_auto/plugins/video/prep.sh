@@ -4,4 +4,4 @@ IMG="/tmp/cur.jpg"
 
 mv $1 $IMG
 
-./gather $IMG 2> /dev/null
+/root/code/control_auto/plugins/video/gather $IMG 2> /dev/null

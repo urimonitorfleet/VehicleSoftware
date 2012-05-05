@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
       }
    }
 
-   if(count > 250){
+   if(count > 50){
       fprintf(out_file, "cent_x|%i\narea|%i\n", x/count, count);
    }else{
       fprintf(out_file, "cent_x|-1\narea|-1\n");
