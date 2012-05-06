@@ -30,7 +30,7 @@ my $mot = Device::SerialPort->new("/dev/MotorController") || die "Can't open /de
    $mot->parity("none");
    $mot->stopbits(1);
 
-my $op_mode = $OP_MODE_DRONE_LEFT;
+my $op_mode = $OP_MODE_FLAGSHIP;
 
 while(1){
    $mot->write(sprintf("%c%c", 0, 0));
@@ -39,7 +39,7 @@ while(1){
 
    if($op_mode == $OP_MODE_FLAGSHIP){
       driveVideo($data);
-      #writeDroneCommands($data);
+      writeDroneCommands($data);
    }elsif($op_mode & ($OP_MODE_DRONE_RIGHT | $OP_MODE_DRONE_LEFT)){
       driveGPS($data);
    }
@@ -192,7 +192,7 @@ print "\n";
 
       print "dLat: $delLat, dLong: $delLong, ";
 
-      if($delLat < .003 && $delLat > -.003 && $delLong < .003 && $delLong > -.003){
+      if($delLat < .001 && $delLat > -.001 && $delLong < .001 && $delLong > -.001){
           $mot_l = $mot_r = $MOT_OFF;
           $lastDir = $DIR_STOP;
           print "in box\n";
@@ -214,13 +214,13 @@ print "\n";
             $mot_l = $MOT_L_R_75;
             $lastDir = $DIR_RIGHT;
          }elsif($delHdg < -5){
-            $mot_l = $MOT_L_STOP; #$delHdg / 10;
+            $mot_l = $MOT_L_STOP;
             $lastDir = $DIR_RIGHT;
          }elsif($delHdg > 90){
             $mot_r = $MOT_R_R_75;
             $lastDir = $DIR_LEFT;
          }elsif($delHdg > 5){
-            $mot_r = $MOT_R_STOP; #$delHdg / -10;
+            $mot_r = $MOT_R_STOP;
             $lastDir = $DIR_LEFT;
          }
       }
@@ -295,16 +295,60 @@ sub writeXML {
 
 sub writeDroneCommands {
    my $data = shift;
-   my $lat, $long, $out;
+   my $lat, $long, $hdg, $out;
 
-   if(!exists $data{ $gps_lat } || !exists $data{ $gps_long }){
+   my $R = 0.0035;
+
+   if(!exists $data->{ 'gps_lat' } || !exists $data->{ 'gps_long' }){
       $out = "left_dest:-1,-1\nright_dest:-1,-1";
    }else{
-      $lat = $data{ $gps_lat };
-      $long = $data{ $gps_long };
+      $lat = $data->{ 'gps_lat' };
+      $long = $data->{ 'gps_long' };
+      $hdg = $data->{ "gps_hdg_true" };
+
+      $theta = ($hdg > 180) ? $hdg - 225 : $hdg - 45;
 
       if($lat > 0 && $long > 0){
-         #figure out where to send the drones
+         $adj = sprintf("%.5f", abs($R * cos($theta)));
+         $opp = sprintf("%.5f", abs($R * sin($theta)));
+#print "hdg: $hdg, adj: $adj, opp: $opp, ";
+         if($hdg < 45 || ($hdg > 180 && $hdg - 180 < 45)){
+            $dLatL = $adj;
+            $dLatR = $opp;
+
+            $dLongL = $opp;
+            $dLongR = $adj * -1;
+         }elsif($hdg < 135 || ($hdg > 180 && $hdg  - 180 < 135)){
+            $dLatL = $adj;
+            $dLatR = $opp * -1;
+
+            $dLongL = $opp * -1;
+            $dLongR = $adj * -1;
+         }else{
+            $dLatL = $adj * -1;
+            $dLatR = $opp * -1;
+
+            $dLongL = $opp * -1;
+            $dLongR = $adj;
+         }
+
+         if($hdg > 180){
+            $dLatL *= -1;
+            $dLatR *= -1;
+
+            $dLongL *= -1;
+            $dLongR *= -1;
+         }
+
+#print "dLatL: $dLatL, dLatR: $dLatR, dLongL: $dLongL, dLongR: $dLongR, ";
+
+         $lLat = $lat + $dLatL;
+         $rLat = $lat + $dLatR;
+
+         $lLong = $long + $dLongL;
+         $rLong = $long + $dLongR;
+      
+         $out = "left_dest:$lLat,$lLong\nright_dest:$rLat,$rLong";
       }else{
          $out = "left_dest:-1,-1\nright_dest:-1,-1";
       }
