@@ -5,8 +5,10 @@
 #include <termios.h>
 #include <ncurses.h>
 
+// get each character repeated by a held down key
+// this is very tricky thanks to key repeat/buffering issues...
 void delay(int c){
-   if(halfdelay(4) != ERR){
+   if(halfdelay(5) != ERR){
       while(getch() == c){
          if(halfdelay(1) == ERR) return;
       }
@@ -16,18 +18,20 @@ void delay(int c){
 int main(int argc,char** argv){
    struct termios tty_opts;
    int tty_fd;
+   FILE *controller;
 
-   int c, speed;
+   int c; 
+   unsigned char speed;
 
    //==========================
    // Set up serial connection
    //==========================
 
    // open connection
-   tty_fd=open("/dev/ttyACM0", O_WRONLY | O_NOCTTY | O_NDELAY);
+   tty_fd=open("/dev/MotorController", O_WRONLY | O_NOCTTY | O_NDELAY);
 
    if(tty_fd == -1){
-      perror("Unable to open device /dev/ttts7 - ");
+      perror("Unable to open device /dev/MotorController - ");
       exit(1);
    }else{
       fcntl(tty_fd, F_SETFL, 0);
@@ -56,59 +60,52 @@ int main(int argc,char** argv){
    cbreak();
    noecho();
 
+   controller = fopen("/dev/MotorController", "w");
+
+   // quit on 'q'
    while ((c = getch()) != 'q') {
       switch (c) {
-         case 's': // reverse
-            //speed = 96; 
-            //write(tty_fd, &speed, 1);
-            //speed = 224;
-            //write(tty_fd, &speed, 1);
-            //c = 'w';
-            write(tty_fd, &c, 1);
-            delay(c);
-            break;
          case 'w': // forwards
-            //speed = 32;
-            //write(tty_fd, &speed, 1);
-            //speed = 160;
-            //write(tty_fd, &speed, 1);
-            //c = 's';
-            write(tty_fd, &c, 1);
+            speed = 112;
+            write(tty_fd, &speed, 1);
+            speed = 240;
+            write(tty_fd, &speed, 1);
             delay(c);
             break;
-         case 'd': // right
-            //speed = 96;
-            //write(tty_fd, &speed, 1);
-            //speed = 160;
-            //write(tty_fd, &speed, 1);
-            write(tty_fd, &c, 1);
+         case 's': // reverse
+            speed = 16;
+            write(tty_fd, &speed, 1);
+            speed = 144;
+            write(tty_fd, &speed, 1);
             delay(c);
             break;
          case 'a': // left
-            //speed = 32;
-            //write(tty_fd, &speed, 1);
-            //speed = 224;
-            //write(tty_fd, &speed, 1);
-            write(tty_fd, &c, 1);
+            speed = 127;
+            write(tty_fd, &speed, 1);
+            speed = 129;
+            write(tty_fd, &speed, 1);
+            delay(c);
+            break;
+         case 'd': // right
+            speed = 1;
+            write(tty_fd, &speed, 1);
+            speed = 255;
+            write(tty_fd, &speed, 1);
             delay(c);
             break;
       }
 
-      //speed = 64;
-      //write(tty_fd, &speed, 1);
-      //speed = 192;
-      //write(tty_fd, &speed, 1);
-      c = 'q';
-      write(tty_fd, &c, 1);
+      speed = 64;
+      write(tty_fd, &speed, 1);
+      speed = 192;
+      write(tty_fd, &speed, 1);
 
       cbreak();
    }
 
    // clean up
-   c = 'q';
-   write(tty_fd, &c, 1);
-   //speed = 0;
-   //write(tty_fd, &speed, 1);
+   speed = 0;
+   write(tty_fd, &speed, 1);
 
    close(tty_fd);
    
