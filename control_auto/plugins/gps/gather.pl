@@ -44,7 +44,7 @@ while(1){
             $satInUse = $data[7] || '0';
          }
             
-         case '$GPGSV' { $satInView = $data[3] || '0'; }
+         case '$GPGSV' { $satInView = $data[3] || '0'; } # there's a bug here
          case '$HCHDG' { $hdg_mag  = $data[1] || '-1'; }
          case '$HCHDT' { $hdg_true = $data[1] || '-1'; }
       }
