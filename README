@@ -1,0 +1,41 @@
+=== Vehicle Software ===
+
+Author:  Brian Kintz
+Project:  2011-2012 URI ELE Capstone Design
+Team:  Semi-autonomous Monitor Fleet
+Last Edited:  5/9/2012
+Code Repo:  http://github.com/urimonitorfleet/VehicleSoftware
+
+=== Description ===
+
+This directory contains all the custom software used by the vehicle.  This is split into relavent sub-directories:
+
+./control_auto/ - All of the autonomous control code.
+./control_manual/ - The manual (keyboard) control code
+./matlab/ - MATLAB code used before we switched to our custom programming
+./scripts/ - Various scripts used to simplify the startup/shutdown process
+./wireless_configs/ - Configuration files for automatically connecting to specific wireless networks
+
+=== Usage ===
+
+- For manual control, run m_control in the control_manual/ directory, then used the WASD keys to drive.  'q' quits.
+
+- The scripts/ directory contains the high-level programs to start and stop autonomous operation.  Most importantly, it contains the autoControl.sh script.  Run this script with one of the options [start|stop|restart] to perform that action.  Note that if any stage of the startup fails, the scripts will automatically stop itself and clean up.
+
+- To start video streaming only, use the stream.sh script in scripts/.  Use with one of the options: [mjpg|mjpg_file|vlc|vlc_file|stop].  The options are for the different streaming protocols, MJPEG or MP4 transcoded by VLC.  The second options takes much more work than the first.  The options ending in "_file" link the image processing plugin to the input stream.  If you don't use one of these options, the camera based driving won't work because there won't be any object location data.
+
+=== Plugins ===
+
+All of the data harvesting plugins can be found in control_auto/plugins/.  To add a new one, create a new folder there with a descriptive name, for example control_auto/plugins/christmasTreeClapper.  Place the plugin code in this folder, with the main plugin named "gather" or "gather.<extension>".  Finally, add a line to the autoControl.sh script's "start" section to make sure it actually gets used.  Don't worry about stopping it - as long as you named it correctly it will be automagically cleaned up.
+
+=== Vehicle Operating Modes ===
+
+In order to switch between camera and GPS modes, you have to edit the main.pl file in control_auto/.  Up at the top, there's a variable definition that changes the operating mode of the vehicle.
+
+=== A note on udev ===
+
+In /etc/udev/rules.d/, there are two udev rules defined for the GPS and the Motor Controller.  These look at the device properties and make sure that instead of /dev/ttyUSB0 or /dev/ttyUSB1, the GPS is attached as /dev/GPS and the motor controller as /dev/MotorController.  THESE FILES VARY BETWEEN CARS!  Specifically, the different Airmar data conversion units have different ID strings (two are "AIRMAR RS485 <==> USB SerialConverter" and one is "Airmar RS485 <==> USB Converter" or something like that).  This is important because if you clone one vehicle to the others, at least one of the clonees will not recognize its GPS sensor.  To fix it, simply check the output of dmesg after you plug the GPS in to determine the correct value and put it in the rule at the above location.  Then, restart udev using "service udev restart", unplug/replug the Airmar converter and you should see the GPS device in /dev.
+
+Happy Driving!
+
+=== End ===
