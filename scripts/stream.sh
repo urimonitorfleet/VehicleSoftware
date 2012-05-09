@@ -44,7 +44,7 @@ stop_pid () {
 
 if [ $# -lt 1 ]
 then
-   echo "Usage : $0 {mjpg|mjpg_file|vlc|vlc_file|stop}"
+   echo "Usage : $0 [mjpg|mjpg_file|vlc|vlc_file|stop]"
    exit 1
 fi
 
@@ -123,8 +123,12 @@ case "$1" in
                exit 0;
                ;;
 
+   help)       echo "Usage : $0 [mjpg|mjpg_file|vlc|vlc_file|stop]"
+               exit 1
+               ;;
+
    *)          echo "Invalid Option!"
-               echo "\n\nUsage : $0 {mjpg|mjpg_file|vlc|stop}"
+               echo "\n\nUsage : $0 [mjpg|mjpg_file|vlc|stop]"
                exit 1
 esac
 

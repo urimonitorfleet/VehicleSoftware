@@ -105,6 +105,11 @@ restart) $0 stop
          $0 start
          ;;
 
-*)     echo "Invalid option"
+help)  echo "Usage : $0 [start|stop|restart]"
+       exit 1
+       ;;
+
+*)     echo "Invalid option!"
+       echo "\n\nUsage : $0 [start|stop|restart]"
        ;;
 esac
